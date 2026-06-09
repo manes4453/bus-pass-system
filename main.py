@@ -1,5 +1,6 @@
-from flask import Flask, render_template_string, request
+from flask import Flask, render_template_string, request, send_file
 import sqlite3
+from reportlab.pdfgen import canvas
 
 app = Flask(__name__)
 
@@ -85,6 +86,19 @@ th, td{
     text-align:center;
 }
 
+a{
+    text-decoration:none;
+    color:white;
+}
+
+.download-btn{
+    background:green;
+    padding:10px;
+    border-radius:5px;
+    text-align:center;
+    margin-top:10px;
+}
+
 </style>
 
 </head>
@@ -110,6 +124,10 @@ th, td{
 </form>
 
 <h2>{{ message }}</h2>
+
+<div class="download-btn">
+<a href="/download">Download Bus Pass PDF</a>
+</div>
 
 <h1>Admin Panel</h1>
 
@@ -178,6 +196,26 @@ def home():
     conn.close()
 
     return render_template_string(PAGE, message=message, data=data)
+
+@app.route('/download')
+
+def download_pdf():
+
+    pdf_file = "bus_pass.pdf"
+
+    c = canvas.Canvas(pdf_file)
+
+    c.setFont("Helvetica-Bold", 20)
+    c.drawString(180, 800, "Bus Pass")
+
+    c.setFont("Helvetica", 14)
+    c.drawString(100, 700, "Cloud-Based Bus Pass System")
+
+    c.drawString(100, 650, "Status: Approved")
+
+    c.save()
+
+    return send_file(pdf_file, as_attachment=True)
 
 if __name__ == '__main__':
     app.run(debug=True)
